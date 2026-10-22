@@ -17,6 +17,11 @@ static NSString * const URLProtocolHandledKey = @"URLProtocolHandledKey";
     if ([requestURLString rangeOfString:@"https://search.itunes.apple.com"].location != NSNotFound) {
         return NO;
     }
+
+    // analyzing failed requests in fiddler classic showed this was failing when not on the search.itunes.apple.com domain!
+    if ([requestURLString rangeOfString:@"https://itunes.apple.com/WebObjects/MZStore.woa/wa/search"].location != NSNotFound) {
+        return YES;
+    }
     
     if ([requestURLString rangeOfString:@"dv6-storefront-p6bootstrap.js"].location != NSNotFound) {
         return YES;
@@ -45,6 +50,9 @@ static NSString * const URLProtocolHandledKey = @"URLProtocolHandledKey";
         return;
     }
     
+    // Replace itunes.apple.com domain with search domain when searching; fixes 503 error
+    requestURLString = [requestURLString stringByReplacingOccurrencesOfString:@"https://itunes.apple.com/WebObjects/MZStore.woa/wa/search" withString:@"https://search.itunes.apple.com/WebObjects/MZStore.woa/wa/search"];
+
     // Replace "dv6-storefront-p6bootstrap.js" with "dv7-storefront-p7bootstrap.js"
     requestURLString = [requestURLString stringByReplacingOccurrencesOfString:@"dv6-storefront-p6bootstrap.js" withString:@"dv7-storefront-p7bootstrap.js"];
     
